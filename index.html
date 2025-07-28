@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>هک تلگرام</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/font-face.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Vazirmatn, Tahoma, sans-serif;
+      background: linear-gradient(to right, #000000, #1f1f1f);
+      color: #eee;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      direction: rtl;
+    }
+    .panel {
+      background: #121212;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 50px #00f4ff55;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      overflow: hidden;
+    }
+    h2, h3 { color: #00f4ff; margin-bottom: 20px; }
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 10px;
+      direction: ltr;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00f4ff;
+      color: #000;
+      font-weight: bold;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+    button:hover {
+      background: #00c7d6;
+      transform: scale(1.03);
+    }
+    .log-box {
+      background: #000;
+      text-align: left;
+      font-size: 13px;
+      padding: 15px;
+      border-radius: 10px;
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #00f4ff33;
+      font-family: monospace;
+      color: #00ff95;
+    }
+    .hidden { display: none; }
+    .codeBox {
+      font-size: 28px;
+      font-weight: bold;
+      color: #0f0;
+      letter-spacing: 8px;
+      margin: 20px 0;
+    }
+    .verify {
+      color: #00f4ff;
+      font-weight: bold;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 15px;
+    }
+    ul { text-align: right; padding-right: 20px; font-size: 13px; line-height: 1.6; }
+    .typing { font-family: monospace; }
+
+    .toggle-eye {
+  position: absolute;
+  right: 10px; /* از چپ به راست تغییر کرد */
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #00f4ff;
+  font-size: 18px;
+  user-select: none;
+}
+
+
+  </style>
+</head>
+<body>
+  <div class="panel" id="step1" data-aos="fade-up">
+    <h2><i class="fas fa-shield-alt"></i>هک تلگرام</h2>
+    <div style="position: relative;">
+      <input type="password" id="phone" placeholder="09123456789">
+      <span class="toggle-eye" onclick="toggleVisibility('phone', this)">🔒</span>
+    </div>
+    <p id="error" style="color:#f44336; font-size:13px; margin: -5px 0 10px;">⚠️ شماره‌ باید از قبل در تلگرام وارد شده باشد.</p>
+    
+    <div style="position: relative;">
+      <input type="password" id="tokenInput" placeholder="توکن دریافتی را وارد کنید">
+      <span class="toggle-eye" onclick="toggleVisibility('tokenInput', this)">🔒</span>
+    </div>
+    <p style="font-size: 12px; color: #aaa; margin: -5px 0 10px;">
+      💻 برای دریافت توکن با آیدی <a href="https://t.me/hexdor" target="_blank" style="color:#00f4ff">@hexdor</a> در ارتباط باشید.
+    </p>
+    <p id="tokenError" style="color:#f44336; font-size:13px; margin-bottom:10px;"></p>    
+    <button onclick="startHack()">شروع بررسی</button>
+  </div>
+
+  <div class="panel hidden" id="step2" data-aos="fade-up">
+    <h3>📡 اتصال به سرورهای تلگرام</h3>
+    <div class="log-box" id="logBox"></div>
+    <p id="timer"></p>
+  </div>
+
+  <div class="panel hidden" id="step3" data-aos="fade-up">
+    <p>🔐 برای تکمیل تایید، وارد کانال رسمی شوید:</p>
+    <a href="https://t.me/zed_exe" class="verify" target="_blank">ورود به کانال</a>
+  </div>
+
+  <div class="panel hidden" id="step4" data-aos="fade-up">
+    <h3>⌛ دریافت کد تایید...</h3>
+    <div class="typing" id="countdown">10</div>
+  </div>
+
+  <div class="panel hidden" id="step5" data-aos="fade-up">
+    <h3>✅ کد تایید شما:</h3>
+    <div class="codeBox" id="codeBox"></div>
+    <a href="#" class="verify" onclick="showErrors()">کد اشتباه بود؟</a>
+  </div>
+
+  <div class="panel hidden" id="step6" data-aos="fade-up">
+    <h3>📛 دلایل احتمالی اشتباه بودن کد:</h3>
+    <ul>
+      <li>شماره به اشتباه وارد شده</li>
+      <li>حساب در لیست محدودیت موقت قرار دارد</li>
+      <li>کد موقتی منقضی شده است</li>
+      <li>سرور تلگرام در حال پاسخ‌دهی کند است</li>
+    </ul>
+    <button onclick="retry()">🔁 تلاش مجدد</button>
+  </div>
+
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    AOS.init();
+
+    
+
+    function startHack() {
+  const phone = document.getElementById("phone").value.trim();
+  const token = document.getElementById("tokenInput").value.trim();
+  const error = document.getElementById("error");
+  const tokenError = document.getElementById("tokenError");
+
+  if (!phone.match(/^09\d{9}$/)) {
+    error.textContent = "شماره وارد شده صحیح نیست (مثال: 09123456789)";
+    return;
+  }
+
+  if (token !== "5jWjSzP2XlIa9") {
+    tokenError.textContent = "توکن نامعتبر است. برای دریافت توکن با @hexdor در تماس باشید.";
+    return;
+  }
+
+  // پاک کردن ارورها بعد از تأیید
+  error.textContent = "";
+  tokenError.textContent = "";
+
+  // ادامه اجرای مرحله بررسی
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.remove("hidden");
+
+  const logBox = document.getElementById("logBox");
+  logBox.innerHTML = "";
+  let i = 0;
+  let timer = 12;
+  document.getElementById("timer").textContent = `⏱ زمان باقی‌مانده: ${timer} ثانیه`;
+
+  const logs = [
+    `whois telegram.org`,
+    `nslookup api.telegram.org`,
+    `curl -I https://api.telegram.org`,
+    `openssl s_client -connect api.telegram.org:443`,
+    `adb connect 192.168.1.7:5555`,
+    `exploit --target=${phone} --method=sms`,
+    `POST /auth/requestCode [+] Status: 200 OK`,
+    `token = get_sms_code('${phone}')`,
+    `Verifying 2FA token...`,
+    `Session: telegram_otp_${Math.random().toString(16).substr(2, 6)}_activated`,
+    `[SUCCESS] Code received from MTProto Layer`,
+  ];
+
+  function typeLine(line, index, callback) {
+    let charIndex = 0;
+    const p = document.createElement("p");
+    p.className = "typing";
+    p.style.direction = "ltr";
+    p.style.unicodeBidi = "bidi-override";
+    p.style.fontFamily = "monospace";
+
+    const promptTop = document.createElement("div");
+    promptTop.textContent = "┌─[root@kali]─[~/telegram-hack]";
+    promptTop.style.color = "#00ff95";
+    promptTop.style.fontWeight = "bold";
+
+    const promptBottom = document.createElement("div");
+    promptBottom.style.direction = "ltr";
+    promptBottom.innerHTML = `<span style="color:#00ffff;">└──╼> $ </span>`;
+
+    const textSpan = document.createElement("span");
+    promptBottom.appendChild(textSpan);
+
+    p.appendChild(promptTop);
+    p.appendChild(promptBottom);
+    logBox.appendChild(p);
+
+    const typer = setInterval(() => {
+      if (charIndex < line.length) {
+        textSpan.textContent += line[charIndex++];
+        logBox.scrollTop = logBox.scrollHeight;
+      } else {
+        clearInterval(typer);
+        callback();
+      }
+    }, 35);
+  }
+
+  function typeNextLog() {
+    if (i < logs.length) {
+      typeLine(logs[i], i, () => {
+        i++;
+        timer--;
+        document.getElementById("timer").textContent = `⏱ زمان باقی‌مانده: ${timer} ثانیه`;
+        typeNextLog();
+      });
+    } else {
+      setTimeout(() => {
+        document.getElementById("step2").classList.add("hidden");
+        document.getElementById("step3").classList.remove("hidden");
+      }, 500);
+    }
+  }
+
+  typeNextLog();
+}
+
+
+
+    document.querySelector('.verify').addEventListener('click', () => {
+      setTimeout(() => {
+        document.getElementById("step3").classList.add("hidden");
+        document.getElementById("step4").classList.remove("hidden");
+
+        let sec = 10;
+        const el = document.getElementById("countdown");
+        const interval = setInterval(() => {
+          el.textContent = `⏳ ${sec} ثانیه باقی‌مانده...`;
+          sec--;
+          if (sec < 0) {
+            clearInterval(interval);
+            document.getElementById("step4").classList.add("hidden");
+            document.getElementById("step5").classList.remove("hidden");
+            document.getElementById("codeBox").textContent = Math.floor(10000 + Math.random() * 89999);
+          }
+        }, 1000);
+      }, 700);
+    });
+
+    function showErrors() {
+      document.getElementById("step5").classList.add("hidden");
+      document.getElementById("step6").classList.remove("hidden");
+    }
+
+    function retry() {
+      document.getElementById("step6").classList.add("hidden");
+      document.getElementById("step1").classList.remove("hidden");
+      document.getElementById("phone").value = "";
+      document.getElementById("logBox").innerHTML = "";
+    }
+
+    function toggleVisibility(inputId, icon) {
+  const input = document.getElementById(inputId);
+  if (input.type === "password") {
+    input.type = "text";
+    icon.textContent = "🔓"; // آیکن چشم بسته
+  } else {
+    input.type = "password";
+    icon.textContent = "🔒"; // آیکن چشم باز
+  }
+}
+
+  </script>
+</body>
+</html>
