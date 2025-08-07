@@ -97,27 +97,39 @@
   font-size: 18px;
   user-select: none;
 }
-
-
   </style>
 </head>
 <body>
+  <div id="warningBox" style="position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+    <div style="background: #121212; color: #fff; padding: 30px; border-radius: 16px; max-width: 400px; text-align: right; box-shadow: 0 0 30px #00f4ff88; font-family: Vazirmatn;">
+      <h3 style="color:#00f4ff; text-align:center;">⚠️ نکات مهم</h3>
+      <ul style="font-size: 14px; line-height: 1.8;">
+        <li>از شماره خودتون استفاده نکنین تا صدمه‌ای به گوشیتون وارد نشه. رات ما خیلی خطرناکه.</li>
+        <li>توی بخش توکن سر خود عدد یا هر کلمه‌ای وارد نکنین چون بن می‌شید از سایت.</li>
+        <li>هر کاری می‌کنید بر عهده خودتونه و ما هیچ مسئولیتی قبول نمی‌کنیم.</li>
+        <li>سعی کنین از سایت ما درست استفاده کنین و به کسی آسیب نرسونین.</li>
+      </ul>
+      <button onclick="hideWarning()" style="width: 100%; margin-top: 20px; padding: 12px; background: #00f4ff; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">فهمیدم</button>
+    </div>
+  </div>
+  
   <div class="panel" id="step1" data-aos="fade-up">
-    <h2><i class="fas fa-shield-alt"></i>هک تلگرام</h2>
+    <h2><i class="fas fa-shield-alt"></i> هک تلگرام</h2>
     <div style="position: relative;">
       <input type="password" id="phone" placeholder="09123456789">
-      <span class="toggle-eye" onclick="toggleVisibility('phone', this)">🔒</span>
+      <span class="toggle-eye" onclick="toggleVisibility('phone', this)"><i class="fas fa-lock"></i></span>
     </div>
     <p id="error" style="color:#f44336; font-size:13px; margin: -5px 0 10px;">⚠️ شماره‌ باید از قبل در تلگرام وارد شده باشد.</p>
-    
+
     <div style="position: relative;">
       <input type="password" id="tokenInput" placeholder="توکن دریافتی را وارد کنید">
-      <span class="toggle-eye" onclick="toggleVisibility('tokenInput', this)">🔒</span>
+      <span class="toggle-eye" onclick="toggleVisibility('tokenInput', this)"><i class="fas fa-lock"></i></span>
     </div>
+
     <p style="font-size: 12px; color: #aaa; margin: -5px 0 10px;">
       💻 برای دریافت توکن با آیدی <a href="https://t.me/hexdor" target="_blank" style="color:#00f4ff">@hexdor</a> در ارتباط باشید.
     </p>
-    <p id="tokenError" style="color:#f44336; font-size:13px; margin-bottom:10px;"></p>    
+    <p id="tokenError" style="color:#f44336; font-size:13px; margin-bottom:10px;"></p>
     <button onclick="startHack()">شروع بررسی</button>
   </div>
 
@@ -154,6 +166,7 @@
     <button onclick="retry()">🔁 تلاش مجدد</button>
   </div>
 
+  
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
     AOS.init();
@@ -292,15 +305,15 @@
       document.getElementById("logBox").innerHTML = "";
     }
 
-    function toggleVisibility(inputId, icon) {
-  const input = document.getElementById(inputId);
-  if (input.type === "password") {
-    input.type = "text";
-    icon.textContent = "🔓"; // آیکن چشم بسته
-  } else {
-    input.type = "password";
-    icon.textContent = "🔒"; // آیکن چشم باز
-  }
+    function toggleVisibility(inputId, iconWrapper) {
+      const input = document.getElementById(inputId);
+      const isHidden = input.type === "password";
+      input.type = isHidden ? "text" : "password";
+      iconWrapper.innerHTML = `<i class="fas fa-${isHidden ? 'lock-open' : 'lock'}"></i>`;
+    }
+
+function hideWarning() {
+  document.getElementById("warningBox").style.display = "none";
 }
 
   </script>
