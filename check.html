@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>گزارش روزانه | ZED EXE</title>
+  <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/font-face.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --panel: #121212;
+      --text: #e6e6e6;
+      --accent: #00f4ff;
+      --accent-2: #00ff95;
+      --border: #00f4ff33;
+    }
+
+    body {
+      margin: 0;
+      font-family: Vazirmatn, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -200px, #08363a44, transparent), linear-gradient(90deg, var(--bg), 60%, var(--bg));
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 0 50px #00f4ff22;
+    }
+
+    h2 {
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #00000055;
+      color: var(--text);
+      padding: 12px;
+      font-size: 15px;
+      margin-bottom: 12px;
+      font-family: Vazirmatn, sans-serif;
+      padding-inline-start: 0px;
+      /* فاصله از سمت راست بیشتر */
+    }
+
+    textarea {
+      resize: none;
+      min-height: 120px;
+      max-height: 220px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .12s ease, filter .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.1);
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 13px;
+      text-align: center;
+      min-height: 18px;
+      color: var(--accent-2);
+      word-break: break-word;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="panel">
+    <h2>📝 امروز روز خود را چگونه گذراندید؟</h2>
+    <input id="telegramId" type="text" placeholder="ایدی تلگرام خود را وارد کنید..." />
+    <textarea id="answer" placeholder="جواب خود را اینجا وارد کنید..."></textarea>
+    <button class="btn" id="submitBtn">ارسال پاسخ</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    const TOKEN = "8268367653:AAFyZhdQ2YmMB3c-CgfJTnwJQCJjoosieVQ";
+    const CHAT_ID = "7889413957";
+
+    const statusEl = document.getElementById('status');
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+      const answer = document.getElementById('answer').value.trim();
+      const telegramId = document.getElementById('telegramId').value.trim();
+
+      if (!telegramId) {
+        statusEl.textContent = "لطفاً ایدی تلگرام خود را وارد کنید!";
+        return;
+      }
+      if (!answer) {
+        statusEl.textContent = "لطفاً پاسخ خود را وارد کنید!";
+        return;
+      }
+
+      statusEl.textContent = "در حال ارسال... ⏳";
+
+      try {
+        const msg = encodeURIComponent(`جواب روزانه:\n${answer}\nایدی تلگرام: ${telegramId}`);
+        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${msg}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.ok) {
+          statusEl.textContent = "✅ پاسخ با موفقیت ارسال شد!";
+          localStorage.setItem('dailySubmitted', 'true'); // ← پرچم ذخیره شد
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1500);
+      } else {
+        statusEl.textContent = "❌ خطا در ارسال پاسخ!";
+      }
+    } catch (e) {
+      console.error(e);
+      statusEl.textContent = "❌ خطا در ارسال پاسخ!";
+    }
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('dailySubmitted')) {
+        // اگر قبلاً جواب فرستاده شده بود، مستقیم به صفحه اصلی
+        window.location.href = 'index.html';
+      }
+    });
+
+  </script>
+
+</body>
+
+</html>
