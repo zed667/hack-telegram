@@ -1,156 +1,125 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>گزارش روزانه | ZED EXE</title>
-  <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/font-face.css" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0b0b0b;
-      --panel: #121212;
-      --text: #e6e6e6;
-      --accent: #00f4ff;
-      --accent-2: #00ff95;
-      --border: #00f4ff33;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بارگذاری...</title>
+<style>
+  body, html {
+    margin:0; padding:0;
+    width:100%; height:100%;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    background:#0b0b0b;
+    font-family: Vazirmatn, sans-serif;
+    color:#00f4ff;
+  }
 
-    body {
-      margin: 0;
-      font-family: Vazirmatn, sans-serif;
-      background: radial-gradient(1200px 600px at 50% -200px, #08363a44, transparent), linear-gradient(90deg, var(--bg), 60%, var(--bg));
-      color: var(--text);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+  .spinner {
+    border:6px solid #121212;
+    border-top:6px solid #00f4ff;
+    border-radius:50%;
+    width:80px;
+    height:80px;
+    animation:spin 1s linear infinite;
+    margin-bottom:20px;
+    box-shadow: 0 0 20px #00f4ff55;
+  }
 
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px 20px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 0 50px #00f4ff22;
-    }
+  @keyframes spin {
+    0% {transform:rotate(0deg);}
+    100% {transform:rotate(360deg);}
+  }
 
-    h2 {
-      color: var(--accent);
-      text-align: center;
-      margin-bottom: 16px;
-    }
+  .loading-text {
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:15px;
+    letter-spacing:0.5px;
+    color:#00f4ffcc;
+  }
 
-    input,
-    textarea {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #00000055;
-      color: var(--text);
-      padding: 12px;
-      font-size: 15px;
-      margin-bottom: 12px;
-      font-family: Vazirmatn, sans-serif;
-      padding-inline-start: 0px;
-      /* فاصله از سمت راست بیشتر */
-    }
+  .progress-container {
+    width:80%;
+    max-width:300px;
+    height:10px;
+    background:#121212;
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:15px;
+  }
 
-    textarea {
-      resize: none;
-      min-height: 120px;
-      max-height: 220px;
-    }
+  .progress-bar {
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg,#00f4ff,#00ff95);
+    transition: width 0.2s linear;
+  }
 
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      background: var(--accent);
-      color: #000;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .12s ease, filter .2s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      filter: saturate(1.1);
-    }
-
-    .status {
-      margin-top: 8px;
-      font-size: 13px;
-      text-align: center;
-      min-height: 18px;
-      color: var(--accent-2);
-      word-break: break-word;
-    }
-  </style>
+  .progress-message {
+    font-size:14px;
+    color:#00f4ff99;
+    text-align:center;
+    font-style: italic;
+  }
+</style>
 </head>
-
 <body>
 
-  <div class="panel">
-    <h2>📝 امروز روز خود را چگونه گذراندید؟</h2>
-    <input id="telegramId" type="text" placeholder="ایدی تلگرام خود را وارد کنید..." />
-    <textarea id="answer" placeholder="جواب خود را اینجا وارد کنید..."></textarea>
-    <button class="btn" id="submitBtn">ارسال پاسخ</button>
-    <div class="status" id="status"></div>
-  </div>
+<div class="spinner"></div>
+<div class="loading-text">در حال بارگذاری سایت...</div>
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+<div class="progress-message" id="progressMsg"></div>
 
-  <script>
-    const TOKEN = "8268367653:AAFyZhdQ2YmMB3c-CgfJTnwJQCJjoosieVQ";
-    const CHAT_ID = "7889413957";
+<script>
+  const progressBar = document.getElementById('progressBar');
+  const progressMsg = document.getElementById('progressMsg');
 
-    const statusEl = document.getElementById('status');
-    document.getElementById('submitBtn').addEventListener('click', async () => {
-      const answer = document.getElementById('answer').value.trim();
-      const telegramId = document.getElementById('telegramId').value.trim();
+  const messages = [
+  "هر که در پی حقیقت باشد، در پی خداست. — امام علی (ع)",
+  "علم، گوهری است که در دل انسان می‌نشیند. — امام علی (ع)",
+  "کسی که در دلش محبت خدا باشد، در عمل نیز آن را نشان می‌دهد. — امام علی (ع)",
+  "درخت علم، میوه‌اش عمل صالح است. — امام علی (ع)",
+  "خوشا به حال کسی که در دنیا به یاد آخرت باشد. — امام علی (ع)",
+  "نقطه شروع تمام دستاوردها، میل است. — ناپلئون هیل",
+  "تلاش تنها زمانی پاداش خود را کامل می‌دهد که فرد از ادامه دست نکشد. — ناپلئون هیل",
+  "با سه روش می‌توان حکمت را آموخت: اول با تفکر، که شریف‌ترین است؛ دوم با تقلید، که آسان‌ترین است؛ و سوم با تجربه، که تلخ‌ترین است. — کنفوسیوس",
+  "مهم نیست چقدر آهسته می‌روی، تا زمانی که متوقف نشوی. — کنفوسیوس",
+  "کلماتت را بالا ببر، نه صدایت را. باران است که گل‌ها را می‌رویاند، نه رعد. — مولانا",
+  "وقتی با تو هستم، تمام شب بیدار می‌مانیم. وقتی نیستی، نمی‌توانم بخوابم. — مولانا",
+  "هیچ کشوری نمی‌تواند پیشرفت کند، هیچ جامعه آزادی نمی‌تواند پایدار بماند، مگر اینکه شهروندانی تحصیل‌کرده داشته باشد. — جان اف. کندی",
+  "هزینه آزادی همیشه بالا است، اما آمریکایی‌ها همیشه آن را پرداخته‌اند. — جان اف. کندی",
+  "دو راه برای زندگی وجود دارد. یکی این‌که گویی هیچ‌چیز معجزه نیست. دیگری این‌که گویی همه‌چیز معجزه است. — آلبرت انیشتین",
+  "من به اندازه کافی هنرمند هستم تا آزادانه از تخیلم استفاده کنم. تخیل از دانش مهم‌تر است. — آلبرت انیشتین",
+  "هر کسی که یادگیری را متوقف کند، پیر می‌شود، چه در بیست سالگی و چه در هشتاد سالگی. — هنری فورد",
+  "وقتی همه‌چیز علیه شما به نظر می‌رسد، به یاد داشته باشید که هواپیما علیه باد برخاست، نه با آن. — هنری فورد",
+  "فضیلت، زندگی‌ای است که در آن انسان به بهترین شکل ممکن عمل می‌کند. — آریستوتل",
+  "اگر عادت کنید که دیگران را سرزنش نکنید، رشد توانایی عشق در روح خود را احساس خواهید کرد. — لئو تولستوی",
+  "تلاش امروز، پیروزی فردا را می‌سازد. — لئو تولستوی"
+];
 
-      if (!telegramId) {
-        statusEl.textContent = "لطفاً ایدی تلگرام خود را وارد کنید!";
-        return;
-      }
-      if (!answer) {
-        statusEl.textContent = "لطفاً پاسخ خود را وارد کنید!";
-        return;
-      }
 
-      statusEl.textContent = "در حال ارسال... ⏳";
+  // انتخاب جمله تصادفی هنگام لود صفحه و ثابت نگه داشتن آن
+  progressMsg.textContent = messages[Math.floor(Math.random() * messages.length)];
 
-      try {
-        const msg = encodeURIComponent(`جواب روزانه:\n${answer}\nایدی تلگرام: ${telegramId}`);
-        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${msg}`;
-        const res = await fetch(url);
-        const data = await res.json();
+  let progress = 0;
 
-        if (data.ok) {
-          statusEl.textContent = "✅ پاسخ با موفقیت ارسال شد!";
-          localStorage.setItem('dailySubmitted', 'true'); // ← پرچم ذخیره شد
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1500);
-      } else {
-        statusEl.textContent = "❌ خطا در ارسال پاسخ!";
-      }
-    } catch (e) {
-      console.error(e);
-      statusEl.textContent = "❌ خطا در ارسال پاسخ!";
+  const interval = setInterval(() => {
+    progress += Math.random()*2 + 1;
+    if(progress > 100) progress = 100;
+    progressBar.style.width = progress + '%';
+
+    if(progress >= 100){
+      clearInterval(interval);
+      setTimeout(()=> window.location.href='index.html', 500);
     }
-    });
-    window.addEventListener('DOMContentLoaded', () => {
-      if (localStorage.getItem('dailySubmitted')) {
-        // اگر قبلاً جواب فرستاده شده بود، مستقیم به صفحه اصلی
-        window.location.href = 'index.html';
-      }
-    });
-
-  </script>
+  }, 100);
+</script>
 
 </body>
-
 </html>
