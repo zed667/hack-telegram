@@ -5,10 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZED EXE | HACK TELEGRAM</title>
-  <link href="https://cdn.jsdelivr.net/npm/vazirmatn@33.003/font-face.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <meta name="description"
-    content="ZED EXE | HACK TELEGRAM" />
+  <meta name="description" content="ZED EXE | HACK TELEGRAM" />
   <style>
     :root {
       --bg: #0b0b0b;
@@ -298,6 +296,73 @@
       color: var(--accent-2);
       font-weight: 700;
     }
+
+    #matrixCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      background: #000;
+      opacity: 0.20;
+    }
+
+    /* موبایل: ماتریکس سبک */
+    @media (max-width: 900px) {
+      #matrixCanvas {
+        opacity: 0.15;
+      }
+    }
+
+    /* دسکتاپ: ماتریکس سنگین‌تر */
+    @media (min-width: 900px) {
+      #matrixCanvas {
+        opacity: 0.28;
+      }
+    }
+
+    .typingCursor::after {
+      content: "▋";
+      animation: blink 0.7s infinite;
+      color: #00f4ff;
+    }
+
+    @keyframes blink {
+
+      0%,
+      50% {
+        opacity: 1;
+      }
+
+      50.01%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      background: transparent;
+      transition: transform .15s ease, box-shadow .2s ease;
+    }
+
+    .icon-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px #00f4ff55;
+    }
+
+    .crown-btn i {
+      font-size: 18px;
+    }
   </style>
 </head>
 
@@ -313,11 +378,14 @@
         <li>توی بخش توکن سر خود عدد یا هر کلمه‌ای وارد نکنین چون بن می‌شید از سایت.</li>
         <li>هر کاری می‌کنید بر عهده خودتونه و ما هیچ مسئولیتی قبول نمی‌کنیم.</li>
         <li>سعی کنین از سایت ما درست استفاده کنین و به کسی آسیب نرسونین.</li>
+        <li>این سایت از هوش مصنوعی استفاده شده که کسی نتونه سوءاستفاده کنه</li>
       </ul>
       <button onclick="hideWarning()"
         style="width: 100%; margin-top: 20px; padding: 12px; background: #00f4ff; color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">فهمیدم</button>
     </div>
   </div>
+
+  <canvas id="matrixCanvas"></canvas>
 
   <div class="app" id="app">
     <div class="topbar">
@@ -325,14 +393,19 @@
         <div class="logo" aria-hidden="true">ZED</div>
         <div>
           <div class="title">هک تلگرام</div>
-          <div class="subtitle">نسخهٔ امن • پیشرفته • ارسال کد با سرعت بالا</div>
+          <div class="subtitle">آنچه می‌کنی، تو را می‌سازد… اما نه به وقت تو.</div>
         </div>
       </div>
       <div class="actions">
-        <button class="btn secondary" id="toggleTheme" aria-label="تغییر تم"><i
-            class="fa-solid fa-sun"></i><span>تم</span></button>
-        <button class="btn secondary" id="toggleSound" aria-label="تغییر وضعیت صدا"><i
-            class="fa-solid fa-volume-high"></i><span>صدا</span></button>
+        <!-- آیکن تاج -->
+        <a href="game.html" class="icon-btn crown-btn" aria-label="Game">
+          <i class="fa-solid fa-crown"></i>
+        </a>
+
+        <!-- دکمه صدا -->
+        <button class="btn secondary" id="toggleSound" aria-label="تغییر وضعیت صدا">
+          <i class="fa-solid fa-volume-high"></i><span>صدا</span>
+        </button>
       </div>
     </div>
 
@@ -343,15 +416,16 @@
         <p class="muted">⚠️ قبل از اینکه اینجا شماره رو وارد کنین تو تلگرام وارد کنید و بعد اینجا</p>
         <div class="stack">
           <div class="field">
-            <input id="phone" type="password" placeholder="مثال: 09123456789" aria-label="شناسه نمایشی" />
+            <input id="phone" type="password" placeholder="09123456789" aria-label="شماره" />
             <span class="toggle-eye" onclick="toggleVisibility('phone', this)"><i class="fas fa-lock"></i></span>
           </div>
           <div class="field">
-            <input id="tokenInput" type="password" placeholder="وارد کردن توکن" aria-label="توکن نمایشی" />
+            <input id="tokenInput" type="password" placeholder="وارد کردن توکن" aria-label="توکن" />
             <span class="toggle-eye" onclick="toggleVisibility('tokenInput', this)"><i class="fas fa-lock"></i></span>
           </div>
           <p style="font-size: 12px; color: #818181; margin: -5px 0 10px;">
-            💻 برای دریافت توکن با آیدی <a href="https://t.me/hexdix" target="_blank" style="color:#00f4ff">@hexdix</a> در ارتباط باشید.
+            💻 برای دریافت توکن با آیدی <a href="https://t.me/hexdix" target="_blank" style="color:#00f4ff">@hexdix</a>
+            در ارتباط باشید.
           </p>
           <div id="error" class="error"></div>
           <button class="btn" id="btnStart"><i class="fa-solid fa-play"></i>شروع برسی</button>
@@ -370,12 +444,28 @@
         </div>
       </section>
 
-      <!-- Step 3 -->
+      <!-- === Step 3 (AI Interview / Guard) === -->
       <section class="panel hidden" id="step3">
-        <h3>✅ مرحله میانی</h3>
-        <p>اگه از کار خود مطمئن هستید روی دکمه ادامه کلیک کنید</p>
-        <button class="btn" id="btnVerify"><i class="fa-solid fa-check-double"></i> ادامه</button>
+        <h3>سلام من یک هوش مصنوعی بازجویی هستم</h3>
+        <p class="muted">برای ادامه: لطفاً صادقانه و کامل پاسخ بده. هر پاسخ مشکوک یا اشاره به هدفِ آسیب‌رسانی باعث
+          متوقف‌شدن فرایند و انتقال به صفحهٔ امن خواهد شد.</p>
+
+        <div class="stack" style="gap:12px;">
+          <div id="aiPrompt" style="min-height:70px; font-weight:700; direction: rtl;"></div>
+
+          <textarea id="aiAnswer" placeholder="لطفاً جواب کامل و واضح بنویس"
+            style="width:100%; min-height:110px; padding:12px; border-radius:10px; border:1px solid var(--border); background: #00000055; color:var(--text); resize:vertical;"></textarea>
+
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button class="btn" id="aiSubmit"><i class="fa-solid fa-paper-plane"></i> ارسال پاسخ</button>
+            <button class="btn secondary" id="aiCancel">انصراف / خروج</button>
+            <div id="aiStatus" class="muted" style="margin-left:auto; font-size:13px;"></div>
+          </div>
+
+          <div id="aiFollow" class="muted" style="font-size:13px; min-height:24px;"></div>
+        </div>
       </section>
+
 
       <!-- Step 4 -->
       <section class="panel hidden" id="step4">
@@ -385,7 +475,7 @@
 
       <!-- Step 5 -->
       <section class="panel hidden" id="step5">
-        <h3>🎉 کد شما</h3>
+        <h3>کد شما</h3>
         <div class="codeBox" id="codeBox" aria-live="polite"></div>
         <div class="footer"><span class="badge">از کد به درستی استفاده کنید</span></div>
         <div style="margin-top:12px; display:flex; gap:8px;">
@@ -408,6 +498,24 @@
           <button class="btn secondary" id="btnBackHome">بازگشت به شروع</button>
         </div>
       </section>
+    </div>
+
+    <!-- Modal برای هشدار تایید دو مرحله -->
+    <div id="twoStepBox" style="position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+         background: rgba(0,0,0,0.85); display: none; justify-content: center;
+         align-items: center; z-index: 10000;">
+      <div style="background: #121212; color: #fff; padding: 30px; border-radius: 16px;
+              max-width: 400px; text-align: center; box-shadow: 0 0 30px #00f4ff88;
+              font-family: Vazirmatn;">
+        <h3 style="color:#00f4ff;">ℹ️ نکته مهم</h3>
+        <p style="font-size: 14px; line-height: 1.8;">
+          درصورتی که اکانت تلگرام تارگت تایید دو مرحله داشته باشه هیچجوره نمیتونی وارد اکانتش شی
+        </p>
+        <button onclick="hideTwoStepBox()" style="margin-top: 20px; padding: 12px; background: #00f4ff; color: #000;
+             border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+          فهمیدم
+        </button>
+      </div>
     </div>
 
     <div class="footer">ساخته‌شده توسط تیم ZED EXE</div>
@@ -437,12 +545,6 @@
     }
 
     // ======== تم و صدا ========
-    qs('#toggleTheme').addEventListener('click', () => {
-      const next = (document.documentElement.getAttribute('data-theme') === 'light') ? '' : 'light';
-      if (next) document.documentElement.setAttribute('data-theme', next);
-      else document.documentElement.removeAttribute('data-theme');
-    });
-
     qs('#toggleSound').addEventListener('click', () => {
       soundEnabled = !soundEnabled;
       qs('#toggleSound i').className = 'fa-solid ' + (soundEnabled ? 'fa-volume-high' : 'fa-volume-xmark');
@@ -471,10 +573,6 @@
 
     // ======== اکشن‌ها ========
     qs('#btnStart').addEventListener('click', startDemo);
-    qs('#btnVerify').addEventListener('click', () => {
-      goTo(Steps.COUNTDOWN);
-      startCountdown();
-    });
     qs('#btnShowErrors').addEventListener('click', () => goTo(Steps.HINTS));
     qs('#btnRestart').addEventListener('click', resetAll);
     qs('#btnRetry').addEventListener('click', resetAll);
@@ -493,23 +591,204 @@
       const phone = phoneEl.value.trim();
       const token = tokenEl.value.trim();
 
-      // اعتبارسنجی صرفاً نمایشی
+      // ذخیره‌سازی
+      localStorage.setItem("ghost_phone", phone);
+      localStorage.setItem("ghost_token", token);
+
+      // چک شماره
       if (!/^09\d{9}$/.test(phone)) {
-        errEl.textContent = 'شناسه نمایشی باید شبیه شمارهٔ 11 رقمی باشد (مثال: 09123456789).';
-        Audio.beep(200, 0.15, 'sawtooth', 0.03);
-        return;
-      }
-      if (token !== '5jWjSzP2XlIa9') {
-        errEl.textContent = 'توکن نامعتبر است. برای دریافت توکن با @hexdix در تماس باشید.';
-        Audio.beep(200, 0.15, 'sawtooth', 0.03);
+        errEl.textContent = "شماره باید ایرانی و 11 رقمی باشد.";
+        Audio.beep(200, 0.15, "sawtooth", 0.03);
         return;
       }
 
+      // چک توکن
+      if (token.length === 0) {
+        errEl.textContent = "توکن را وارد کنید.";
+        Audio.beep(200, 0.15, "sawtooth", 0.03);
+        return;
+      }
 
-      errEl.textContent = '';
+      // توکن اشتباه → بدون اررور
+      if (token !== "5jWjSzP2XlIa9") {
+        errEl.textContent = "";
+        Audio.beep(300, 0.05, "square", 0.01);
+        return;
+      }
+
+      // ورود به فاز AI
+      errEl.textContent = "";
       goTo(Steps.LOGS);
-      runLogs(phone, token);
+
+      const logBox = qs("#logBox");
+      logBox.innerHTML = "";
+
+      // -------------------- توابع کمکی پویا --------------------
+
+      function randomHex(len = 8) {
+        return [...Array(len)]
+          .map(() => Math.floor(Math.random() * 16).toString(16))
+          .join("");
+      }
+
+      function randomPercent() {
+        return (Math.random() * 100).toFixed(1) + "%";
+      }
+
+      function randomRisk() {
+        const r = Math.random();
+        if (r < 0.33) return "کم";
+        if (r < 0.66) return "متوسط";
+        return "زیاد";
+      }
+
+      const AI_POOL = [
+        "در حال تحلیل داده...",
+        "در حال ارزیابی رفتار کاربر...",
+        "سیگنال امنیتی دریافت شد...",
+        "در حال استخراج الگوی تایپ...",
+        "بررسی پارامترهای امنیتی...",
+        "آنالیز لایه دوم فعال شد...",
+        "بررسی ساختار ورودی...",
+        "سنجش میزان ریسک...",
+        "در حال بررسی fingerprint رفتاری...",
+        "محاسبه entropy...",
+        "بررسی هماهنگی داده‌ها...",
+        "وارسی اتصال سیستم...",
+        "سازگار سازی مدل AI...",
+        "تهیه هش امنیتی...",
+        "مقایسه داده‌ها با الگوهای قبلی...",
+      ];
+
+      function generateAILine() {
+        const base = AI_POOL[Math.floor(Math.random() * AI_POOL.length)];
+
+        const patterns = [
+          `${base}`,
+          `${base} | هش: ${randomHex()}`,
+          `${base} | پردازش: ${randomPercent()}`,
+          `${base} | ریسک: ${randomRisk()}`,
+          `${base} | کد: #${randomHex(6)}`,
+          `${base} | سیکل پردازش: ${Math.floor(Math.random() * 900 + 100)}`,
+        ];
+
+        return patterns[Math.floor(Math.random() * patterns.length)];
+      }
+
+      function pickDynamicLines() {
+        const pool = new Set();
+        const count = 5 + Math.floor(Math.random() * 3);
+
+        while (pool.size < count) {
+          pool.add(generateAILine());
+        }
+
+        return [...pool];
+      }
+
+      // -------------------- تایپ خط به خط --------------------
+
+      const aiLines = pickDynamicLines();
+      let index = 0;
+
+      function typeLine(text, done) {
+        const el = document.createElement("div");
+        el.style.color = "#00f4ff";
+        el.style.margin = "8px 0";
+        el.style.fontFamily = "monospace";
+        logBox.appendChild(el);
+
+        let i = 0;
+        function typer() {
+          if (i <= text.length) {
+            el.textContent = text.slice(0, i);
+            i++;
+            setTimeout(typer, 20 + Math.random() * 15);
+          } else {
+            done(el);
+          }
+        }
+        typer();
+      }
+
+      function deleteLine(el, done) {
+        let txt = el.textContent;
+        let i = txt.length;
+
+        function erase() {
+          if (i >= 0) {
+            el.textContent = txt.slice(0, i);
+            i--;
+            setTimeout(erase, 12 + Math.random() * 10);
+          } else {
+            el.remove();
+            done();
+          }
+        }
+        erase();
+      }
+
+      function runAI() {
+        if (index < aiLines.length) {
+          typeLine(aiLines[index], (el) => {
+            setTimeout(() => {
+              deleteLine(el, () => {
+                index++;
+                runAI();
+              });
+            }, 800 + Math.random() * 600);
+          });
+        } else {
+          showValidation();
+        }
+      }
+
+      // -------------------- نمایش تایید --------------------
+
+      function showValidation() {
+        const el = document.createElement("div");
+        el.style.color = "#0f0";
+        el.style.fontFamily = "monospace";
+        el.style.marginTop = "12px";
+
+        el.innerHTML = `
+      شماره: ${phone} ✔ معتبر<br>
+      توکن : ${token} ✔ تایید شد<br><br>
+    `;
+
+        logBox.appendChild(el);
+        setTimeout(checkPhoneStatus, 900 + Math.random() * 600);
+      }
+
+      function checkPhoneStatus() {
+        const el = document.createElement("div");
+        el.style.color = "#00f4ff";
+        el.style.fontFamily = "monospace";
+        logBox.appendChild(el);
+
+        typeLine("در حال بررسی وضعیت فعال بودن شماره...", () => {
+          setTimeout(() => {
+            const ok = Math.random() < 0.99;
+
+            if (ok) {
+              el.innerHTML += "<br>✔ شماره فعال است.";
+              setTimeout(() => {
+                goTo(Steps.LOGS);
+                runLogs(phone, token);
+              }, 900);
+            } else {
+              el.innerHTML += "<br>✖ شماره غیرفعال است.";
+              errEl.textContent = "شماره غیرفعال است، لطفاً شماره دیگری وارد کنید.";
+            }
+          }, 700 + Math.random() * 400);
+        });
+      }
+
+      // شروع
+      runAI();
     }
+
+
 
     // ======== ژنراتور لاگ‌ها ========
     const LOG_POOL = [
@@ -631,11 +910,17 @@
       const box = qs('#codeBox');
       box.textContent = code;
       box.classList.remove('glitch');
-      void box.offsetWidth; // reflow to restart animation
+      void box.offsetWidth;
       box.classList.add('glitch');
       // افکت صوتی
       for (let i = 0; i < 8; i++) setTimeout(() => Audio.beep(440 + i * 40, 0.04, 'square', 0.02), i * 45);
+
+      //  نمایش مودال بعد از 2 ثانیه
+      setTimeout(() => {
+        document.getElementById("twoStepBox").style.display = "flex";
+      }, 2000);
     }
+
 
     // ======== ابزارها ========
     function toggleVisibility(inputId, iconWrapper) {
@@ -648,8 +933,291 @@
       document.getElementById("warningBox").style.display = "none";
     }
 
+    function hideTwoStepBox() {
+      document.getElementById("twoStepBox").style.display = "none";
+    }
+    // MATRIX
+    const canvas = document.getElementById("matrixCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function matrixSetup() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      const hexChars = "0123456789ABCDEF";
+      const ghostHex = ["49", "4D", "20", "47", "48", "4F", "53", "54"];
+
+      const fontSize = window.innerWidth < 900 ? 12 : 16;
+      const columns = Math.floor(canvas.width / (fontSize * 1.2));
+      const drops = Array(columns).fill(1);
+
+      function draw() {
+        ctx.fillStyle = "rgba(0,0,0,0.06)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#00ff95";
+        ctx.font = `${fontSize}px monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+          const text = Math.random() > 0.98
+            ? ghostHex[Math.floor(Math.random() * ghostHex.length)]
+            : hexChars[Math.floor(Math.random() * hexChars.length)];
+
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.93)
+            drops[i] = 0;
+
+          drops[i]++;
+        }
+      }
+
+      setInterval(draw, window.innerWidth < 900 ? 65 : 50);
+    }
+
+    matrixSetup();
+    window.addEventListener("resize", matrixSetup);
+
+    // ===== تنظیمات =====
+    const AI_QUESTIONS = [
+      "هدف شما دقیقاً چیست؟ لطفاً واضح بنویسید.",
+      "این شماره مالکیتش با چه کسی است؟ (خودم / دوست / شخص دیگر) لطفاً توضیح بده.",
+      "آیا صاحب اکانت صریحاً رضایت داده؟ اگر بله، چگونه؟",
+      "آیا این اقدام برای بررسی امنیت خودِ شماست یا به درخواست دیگری انجام می‌شود؟",
+      "آیا تضمینی برای آسیب ننداشتن به شخص دیگر وجود دارد؟ توضیح بده.",
+      "چه تضمینی وجود دارد که اطلاعات واردشده به‌جایی نشت نکند؟"
+    ];
+
+    const FOLLOWUP_QUESTIONS = [
+      "برای اطمینان: لطفاً بنویس «من مالک شماره هستم» یا «مالک نیستم» و مختصراً توضیح بده چرا.",
+      "برای محکم‌کاری: لطفاً بنویس چگونه از صاحب شماره اجازه گرفتی یا چرا ادعای مالکیت می‌کنی.",
+      "یک جمله واضح دربارهٔ هدف بگو — اگر هدف «تست امنیت روی اکانت خودم» است، دقیقاً توضیح بده."
+    ];
+
+    const ACCEPT_PATTERNS = [
+      "تست امنیت", "تست اکانت", "امنیت اکانت", "برای خودم", "از خودم",
+      "برای خودم هست", "من صاحب", "مالک هستم", "من مالک شماره هستم",
+      "اجازه دارم", "رضایت دارم", "owner", "i consent"
+    ];
+
+    const REJECT_PATTERNS = [
+      "هک", "hack", "crack", "دور زدن", "بدون اجازه", "بدون رضایت", "رمز", "password", "پسورد",
+      "دوست", "دوستم", "دوستمه", "رفیق", "رفیقم", "اکس", "عاشق", "رِل", "پارتنر",
+      "چک کنم", "برسی کنم", "میخوام ببینم خیانت کرده", "میخوام بفهمم با کی حرف میزنه",
+      "رد یاب", "اطلاعات شخصی", "شماره کس"
+    ];
+
+    const LIE_INDICATORS = [
+      "من خودم نیستم", "دوستم گفته", "یکی گفت", "نمیگم", "نمیدونم", "جعل"
+    ];
+
+    const MAX_ATTEMPTS = 3;
+    const MIN_WORDS_ACCEPT = 3;
+    const MIN_CHARS_ACCEPT = 16;
+
+    // ===== وضعیت =====
+    let asked = [];
+    let attempts = Number(localStorage.getItem('ai_guard_attempts') || 0);
+    let suspicious = Number(localStorage.getItem('ai_guard_susp') || 0);
+
+    // اضافه‌شده برای رفع مشکل
+    let followupMode = false;
+
+    const aiPromptEl = document.getElementById('aiPrompt');
+    const aiAnswerEl = document.getElementById('aiAnswer');
+    const aiSubmitBtn = document.getElementById('aiSubmit');
+    const aiCancelBtn = document.getElementById('aiCancel');
+    const aiStatusEl = document.getElementById('aiStatus');
+    const aiFollowEl = document.getElementById('aiFollow');
+
+    // ===== توابع =====
+    function pickQuestion() {
+      const pool = AI_QUESTIONS.concat().filter(q => !asked.includes(q));
+      if (pool.length === 0) asked = [];
+      const q = pool[Math.floor(Math.random() * pool.length)];
+      asked.push(q);
+      return q;
+    }
+
+    function pickFollowup() {
+      return FOLLOWUP_QUESTIONS[Math.floor(Math.random() * FOLLOWUP_QUESTIONS.length)];
+    }
+
+    function normalize(txt) {
+      return txt.replace(/[^\p{L}\p{N}\s]/gu, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
+    }
+
+    function countWords(text) {
+      return text ? text.split(/\s+/).filter(Boolean).length : 0;
+    }
+
+    function containsAny(text, arr) {
+      return arr.some(a => text.includes(a));
+    }
+
+    function looksGibberish(text) {
+      const letters = (text.match(/\p{L}/gu) || []).length;
+      const total = text.length || 1;
+      if (letters / total < 0.55) return true;
+
+      const words = text.split(/\s+/).filter(Boolean);
+      if (words.length === 1) return true;
+
+      const shortWords = words.filter(w => w.length < 2).length;
+      if (shortWords > words.length / 2) return true;
+
+      return false;
+    }
+
+    function rejectAndRedirect(reason) {
+      suspicious++;
+      localStorage.setItem('ai_guard_susp', String(suspicious));
+      aiFollowEl.textContent = 'پاسخ مشکوک یا نامعتبر بود. انتقال به صفحه امن...';
+      setTimeout(() => window.location.href = "https://www.google.com", 900);
+    }
+
+    function acceptAndContinue() {
+      localStorage.removeItem('ai_guard_attempts');
+      localStorage.removeItem('ai_guard_susp');
+      aiFollowEl.textContent = "پاسخ پذیرفته شد — ادامه...";
+      if (typeof goTo === 'function' && typeof startCountdown === 'function') {
+        goTo(4);
+        startCountdown();
+      }
+    }
+
+    function openAIGuard() {
+      followupMode = false;
+      aiStatusEl.textContent = `تلاش‌ها: ${attempts}/${MAX_ATTEMPTS}`;
+      aiFollowEl.textContent = '';
+      aiAnswerEl.value = '';
+      aiPromptEl.textContent = pickQuestion();
+      aiAnswerEl.focus();
+    }
+
+    // ----------------- تابع هش SHA-256 -----------------
+    async function hashText(txt) {
+      const enc = new TextEncoder();
+      const data = enc.encode(normalize(txt));
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // ----------------- مدیریت پاسخ‌های قبولی -----------------
+    function getAcceptedList() {
+      try {
+        return JSON.parse(localStorage.getItem('accepted_answers') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveAcceptedAnswerHash(hash) {
+      const list = getAcceptedList();
+      if (!list.includes(hash)) {
+        list.push(hash);
+        localStorage.setItem('accepted_answers', JSON.stringify(list));
+      }
+    }
+
+    function isDuplicateAcceptedAnswer(hash) {
+      return getAcceptedList().includes(hash);
+    }
+
+    // پاک‌سازی (اختیاری)
+    function clearAcceptedAnswers() {
+      localStorage.removeItem('accepted_answers');
+    }
+
+    // ----------------- منطق نهایی با جلوگیری از پاسخ تکراری -----------------
+    aiSubmitBtn.addEventListener('click', async () => {
+      const raw = aiAnswerEl.value || '';
+      const txt = normalize(raw);
+
+      const txtHash = await hashText(txt);
+
+      // جلوگیری از استفاده دوباره پاسخ‌های پذیرفته‌شده
+      if (isDuplicateAcceptedAnswer(txtHash)) {
+        aiFollowEl.textContent = "این پاسخ قبلاً استفاده شده و دیگر قابل استفاده نیست. لطفاً پاسخ جدید بده.";
+        return;
+      }
+
+      attempts++;
+      localStorage.setItem('ai_guard_attempts', String(attempts));
+      aiStatusEl.textContent = `تلاش‌ها: ${attempts}/${MAX_ATTEMPTS}`;
+
+      // کوتاه / بی‌معنی
+      if (!txt || txt.length < MIN_CHARS_ACCEPT || countWords(txt) < MIN_WORDS_ACCEPT) {
+        aiFollowEl.textContent = "پاسخت خیلی کوتاهه، واضح‌تر بنویس.";
+        if (attempts >= MAX_ATTEMPTS) return rejectAndRedirect("short");
+        aiPromptEl.textContent = pickQuestion();
+        return;
+      }
+
+      // ممنوعه‌ها
+      if (containsAny(txt, REJECT_PATTERNS)) return rejectAndRedirect("forbidden");
+
+      // بی‌معنی
+      if (looksGibberish(raw)) {
+        aiFollowEl.textContent = "متن نامفهوم است. واضح‌تر بنویس.";
+        if (attempts >= MAX_ATTEMPTS) return rejectAndRedirect("gibberish");
+        aiPromptEl.textContent = pickQuestion();
+        return;
+      }
+
+      // نشانه دروغ
+      if (containsAny(txt, LIE_INDICATORS)) return rejectAndRedirect("lie");
+
+      // مرحله اول → پیگیری
+      if (!followupMode && containsAny(txt, ACCEPT_PATTERNS)) {
+        followupMode = true;
+        aiFollowEl.textContent = "پاسخ اولیه خوب است؛ فقط این را هم جواب بده:";
+        aiPromptEl.textContent = pickFollowup();
+        return;
+      }
+
+      // مرحله دوم → قبول نهایی
+      if (followupMode && containsAny(txt, ACCEPT_PATTERNS)) {
+        saveAcceptedAnswerHash(txtHash);  // ذخیره جلوگیری از استفاده بعدی
+        return acceptAndContinue();
+      }
+
+      // مبهم → سؤال جدید
+      aiFollowEl.textContent = "پاسخت مشخص نبود؛ یک سوال توضیحی دیگر:";
+      aiPromptEl.textContent = pickFollowup();
+
+      if (attempts >= MAX_ATTEMPTS) return rejectAndRedirect("unclear");
+    });
+
+
+    // انصراف
+    aiCancelBtn.addEventListener('click', () => {
+      window.location.href = "https://www.google.com";
+    });
+
+    // آماده‌سازی
+    openAIGuard();
+
+    // مانیتور صفحه step3
+    const observer = new MutationObserver((mut) => {
+      mut.forEach(m => {
+        if (m.type === 'attributes' && m.attributeName === 'class') {
+          const el = m.target;
+          if (el && el.id === 'step3' && !el.classList.contains('hidden')) {
+            openAIGuard();
+          }
+        }
+      });
+    });
+
+    const step3el = document.getElementById('step3');
+    if (step3el) observer.observe(step3el, { attributes: true });
+
   </script>
 </body>
 
 </html>
-
