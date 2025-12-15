@@ -1,279 +1,465 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ZED EXE | Economy</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>TON Crash • Dark</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
     <style>
         :root {
-            --bg: #0b0b0b;
-            --panel: #121212;
-            --text: #e6e6e6;
-            --accent: #00f4ff;
-            --accent2: #00ff95;
-            --border: #00f4ff33;
-            --muted: #9aa0a6;
+            --bg: #0b0d10;
+            --card: #12161c;
+            --muted: #9aa4b2;
+            --green: #00ff88;
+            --red: #ff4d4d;
+            --accent: #6c7cff;
         }
 
         * {
-            box-sizing: border-box
+            box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            font-family: Vazirmatn, Tahoma, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh
-        }
-
-        /* HUD toggle */
-        .hud-toggle {
-            position: fixed;
-            top: 12px;
-            right: 12px;
-            z-index: 20
-        }
-
-        .hud-btn {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 10px 14px;
-            color: var(--accent);
-            font-weight: 800;
-            cursor: pointer
-        }
-
-        .hud {
-            position: fixed;
-            top: 60px;
-            right: 12px;
-            left: 12px;
-            max-width: 420px;
-            margin: auto;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            z-index: 20
-        }
-
-        .hud.open {
-            display: flex
-        }
-
-        .chip {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 10px 14px;
+            background: radial-gradient(1200px 600px at 50% -10%, #11182700, transparent), var(--bg);
+            color: #fff;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
             display: flex;
-            justify-content: space-between;
-            align-items: center
-        }
-
-        .chip i {
-            color: var(--accent)
-        }
-
-        .val {
-            font-weight: 900
+            justify-content: center;
         }
 
         .app {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 120px 16px 24px
+            width: 100%;
+            max-width: 420px;
+            padding: 14px;
         }
 
-        .panel {
-            background: var(--panel);
-            border: 1px solid var(--border);
+        .card {
+            background: linear-gradient(180deg, #151a22, #0f131a);
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            font-weight: 700;
+        }
+
+        .brand i {
+            color: var(--accent);
+        }
+
+        .stats {
+            display: flex;
+            gap: 14px;
+        }
+
+        .stat {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .stat b {
+            color: #fff;
+        }
+
+        .chart-wrap {
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .mult {
+            font-size: 42px;
+            font-weight: 900;
+        }
+
+        .mult small {
+            font-size: 16px;
+            color: var(--muted);
+            margin-left: 6px;
+        }
+
+        input,
+        button {
+            width: 100%;
+            border: 0;
+            border-radius: 14px;
+        }
+
+        input {
+            padding: 14px;
+            background: #0e1420;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        button {
+            padding: 14px;
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #6c7cff, #8b5cf6);
+            cursor: pointer;
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #00c853, #64dd17);
+        }
+
+        button:disabled {
+            opacity: .5;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .result {
+            margin-top: 8px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .feed {
+            font-size: 12px;
+            color: var(--muted);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .feed i {
+            color: #22c55e;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* ===== Custom Modal ===== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .modal {
+            background: linear-gradient(180deg, #151a22, #0f131a);
             border-radius: 18px;
             padding: 18px;
-            box-shadow: 0 0 40px #00f4ff22
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, .7);
+            text-align: center;
         }
 
-        .title {
-            color: var(--accent);
-            font-weight: 900;
-            margin: 0 0 8px
+        .modal h3 {
+            margin: 0 0 8px;
+            font-size: 18px;
         }
 
-        .muted {
+        .modal p {
+            margin: 0 0 14px;
+            font-size: 14px;
             color: var(--muted);
-            font-size: 12px;
-            line-height: 1.8
         }
 
-        .btn {
-            border: none;
-            border-radius: 14px;
-            padding: 14px;
-            font-weight: 900;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--accent), var(--accent2));
-            color: #000
-        }
-
-        .btn.lock {
-            filter: grayscale(1);
-            opacity: .5;
-            cursor: not-allowed
-        }
-
-        .progress {
-            height: 10px;
-            border-radius: 999px;
-            background: #1f2937;
-            overflow: hidden;
-            border: 1px solid var(--border)
-        }
-
-        .bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent), var(--accent2))
-        }
-
-        .stack {
-            display: grid;
-            gap: 10px
-        }
-
-        @media(min-width:900px) {
-            .hud {
-                right: 12px;
-                left: auto;
-                width: 260px
-            }
+        .modal button {
+            margin-top: 0;
         }
     </style>
 </head>
 
 <body>
-
-    <!-- HUD Toggle -->
-    <div class="hud-toggle" style="display:flex; gap:8px">
-        <button class="hud-btn" id="hudBtn">💰 دارایی‌ها</button>
-        <button class="hud-btn" id="connectWallet">🔗 اتصال کیف پول</button>
-    </div>
-
-
-    <!-- HUD -->
-    <div class="hud" id="hud">
-        <div class="chip"><span><i class="fa-solid fa-coins"></i> سکه</span><span class="val" id="coin">0.0</span></div>
-        <div class="chip"><span><i class="fa-solid fa-gem"></i> TON</span><span class="val" id="ton">0.00000000</span>
-        </div>
-        <div class="chip"><span><i class="fa-solid fa-circle-notch"></i> NOT</span><span class="val"
-                id="not">0.00000000</span></div>
-        <div class="chip"><span><i class="fa-solid fa-dollar-sign"></i> USDT</span><span class="val"
-                id="usdt">0.00000000</span></div>
-    </div>
-
     <div class="app">
-        <section class="panel stack">
-            <h2 class="title">⛏️ استخراج</h2>
-            <p class="muted">سکه‌ها به‌صورت خودکار و تدریجی استخراج می‌شوند.</p>
-            <div class="progress">
-                <div class="bar" id="coinBar"></div>
+
+        <div class="card header">
+            <div class="brand"><i class="fa-solid fa-chart-line"></i> TON Crash</div>
+            <div class="stats">
+                <div class="stat"><i class="fa-solid fa-coins"></i> Coins: <b id="balance">1000</b></div>
+                <div class="stat"><i class="fa-brands fa-ethereum"></i> TON: <b id="ton">0.00000000</b></div>
             </div>
-            <button class="btn" id="mineCoin">شروع استخراج</button>
+        </div>
 
-            <div class="panel stack" style="margin-top:10px">
-                <button class="btn lock" id="tokenBtn">🔒 دریافت توکن سایت (50 سکه)</button>
-                <button class="btn lock" id="altsBtn">🔒 استخراج TON / NOT / USDT (500 سکه)</button>
+        <div class="card">
+            <div class="chart-wrap">
+                <canvas id="chart" height="170"></canvas>
+                <div class="overlay">
+                    <div class="mult" id="mult">x1.00 <small>(+0%)</small></div>
+                </div>
             </div>
-        </section>
+        </div>
 
-        <section class="panel stack" style="margin-top:16px">
-            <h3 class="title">📜 قوانین و توضیحات</h3>
-            <p class="muted">• سکه ارز داخلی سایت است و فقط برای بازکردن قابلیت‌ها استفاده می‌شود.</p>
-            <p class="muted">• پس از رسیدن به 50 سکه، امکان دریافت توکن سایت فعال می‌شود.</p>
-            <p class="muted">• پس از رسیدن به 500 سکه، استخراج ارزهای TON، NOT و USDT فعال خواهد شد.</p>
-            <p class="muted">• استخراج ارزها تدریجی و با دقت اعشاری بالا انجام می‌شود.</p>
-            <p class="muted">• هرگونه تلاش برای سوءاستفاده باعث مسدودسازی دسترسی خواهد شد.</p>
-        </section>
-    </div>
+        <div class="card">
+            <input type="number" id="bet" placeholder="Bet amount (1 – 50000 coins)" />
+            <div class="row">
+                <button id="payBtn" onclick="startRound()"><i class="fa-solid fa-play"></i> Start</button>
+                <button id="cashBtn" class="secondary" onclick="cashOut()" style="display:none"><i
+                        class="fa-solid fa-wallet"></i> Cash Out</button>
+            </div>
+            <div class="result" id="result"></div>
+        </div>
 
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+        <div class="card footer">
+            <div class="feed" style="cursor:pointer" onclick="openSettings()">
+                <i class="fa-solid fa-gear"></i> Settings
+            </div>
+            <div><i class="fa-solid fa-shield"></i> Fair-play mode</div>
+        </div>
 
-    <script>
-        const S = {
-            coin: parseFloat(localStorage.getItem('coin') || '0'),
-            ton: parseFloat(localStorage.getItem('ton') || '0'),
-            not: parseFloat(localStorage.getItem('not') || '0'),
-            usdt: parseFloat(localStorage.getItem('usdt') || '0'),
-            mining: false,
-            coinRate: 0.5,
-            altRate: 0.00000001,
-            tick: 1000
-        };
+        <!-- Settings Modal -->
+        <div class="modal-backdrop" id="settingsModal">
+            <div class="modal">
+                <h3>Wallet</h3>
+                <p style="margin-bottom:14px">Tonkeeper connection</p>
 
-        const $ = id => document.getElementById(id);
-        const el = { coin: $("coin"), ton: $("ton"), not: $("not"), usdt: $("usdt"), bar: $("coinBar"), mine: $("mineCoin"), token: $("tokenBtn"), alts: $("altsBtn"), hud: $("hud"), hudBtn: $("hudBtn") };
+                <button id="walletBtn" onclick="toggleWallet()">
+                    <i class="fa-solid fa-wallet"></i> Connect Tonkeeper
+                </button>
 
-        function save() { ['coin', 'ton', 'not', 'usdt'].forEach(k => localStorage.setItem(k, S[k])); }
+                <button style="margin-top:14px" onclick="closeSettings()">Close</button>
+            </div>
+        </div>
 
-        function render() {
-            el.coin.textContent = S.coin.toFixed(1);
-            el.ton.textContent = S.ton.toFixed(8);
-            el.not.textContent = S.not.toFixed(8);
-            el.usdt.textContent = S.usdt.toFixed(8);
-            el.bar.style.width = Math.min(100, (S.coin % 10) * 10) + '%';
+        <!-- TONCONNECT SDK -->
+        <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
 
-            if (S.coin >= 50) { el.token.classList.remove('lock'); el.token.textContent = '🔓 دریافت توکن سایت'; }
-            if (S.coin >= 500) { el.alts.classList.remove('lock'); el.alts.textContent = '🔓 استخراج TON / NOT / USDT'; }
-        }
+        <script>
+            /* ================= MODAL ================= */
+            const modal = document.createElement('div');
+            modal.className = 'modal-backdrop';
+            modal.innerHTML = `
+            <div class="modal">
+                <h3 id="modalTitle"></h3>
+                <p id="modalText"></p>
+                <button onclick="closeModal()">Close</button>
+            </div>`;
+            document.body.appendChild(modal);
 
-        let timer = null;
-        function start() {
-            if (S.mining) return;
-            S.mining = true;
-            el.mine.textContent = 'در حال استخراج…';
-            timer = setInterval(() => {
-                S.coin += S.coinRate;
-                if (S.coin >= 500) {
-                    S.ton += S.altRate;
-                    S.not += S.altRate;
-                    S.usdt += S.altRate;
-                }
-                save(); render();
-            }, S.tick);
-        }
+            const modalTitle = document.getElementById('modalTitle');
+            const modalText = document.getElementById('modalText');
 
-        el.mine.onclick = start;
-        el.token.onclick = () => { if (S.coin < 50) return; alert('توکن سایت – مرحله بعدی'); };
-        el.alts.onclick = () => { if (S.coin < 500) return; alert('استخراج ارزها فعال شد'); };
-
-        el.hudBtn.onclick = () => el.hud.classList.toggle('open');
-
-        render();
-
-        // ساخت کانکتور
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: window.location.origin + '/tonconnect-manifest.json'
-        });
-        const connectBtn = document.getElementById('connectWallet');
-
-        connectBtn.onclick = async () => {
-            await tonConnectUI.connectWallet();
-        };
-        tonConnectUI.onStatusChange(wallet => {
-            if (wallet) {
-                const address = wallet.account.address;
-                console.log('Wallet connected:', address);
-
-                localStorage.setItem('ton_wallet', address);
-                connectBtn.textContent = '✅ متصل شد';
-            } else {
-                connectBtn.textContent = '🔗 اتصال کیف پول';
+            function showModal(msg, title = 'Message') {
+                modalTitle.textContent = title;
+                modalText.textContent = msg;
+                modal.style.display = 'flex';
             }
-        });
+            function closeModal() {
+                modal.style.display = 'none';
+            }
 
-    </script>
+            /* ================= SETTINGS ================= */
+            const settingsModal = document.getElementById('settingsModal');
+            function openSettings() {
+                updateWalletUI();
+                settingsModal.style.display = 'flex';
+            }
+            function closeSettings() {
+                settingsModal.style.display = 'none';
+            }
+
+            /* ================= TONCONNECT ================= */
+            const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                manifestUrl: 'https://zed667.github.io/hack-telegram/tonconnect-manifest.json'
+            });
+
+
+            let walletAddress = null;
+            const walletBtn = () => document.getElementById('walletBtn');
+
+            function updateWalletUI() {
+                if (tonConnectUI.connected) {
+                    walletBtn().innerHTML =
+                        '<i class="fa-solid fa-plug-circle-xmark"></i> Disconnect Wallet';
+                    walletBtn().style.background =
+                        'linear-gradient(135deg,#ff4d4d,#ff7a7a)';
+                } else {
+                    walletBtn().innerHTML =
+                        '<i class="fa-solid fa-wallet"></i> Connect Wallet';
+                    walletBtn().style.background =
+                        'linear-gradient(135deg,#6c7cff,#8b5cf6)';
+                }
+            }
+
+
+            /* 🔥 REAL CONNECT */
+            async function toggleWallet() {
+                if (!tonConnectUI.connected) {
+                    await tonConnectUI.connectWallet();
+                } else {
+                    await tonConnectUI.disconnect();
+                }
+            }
+
+
+            /* Status Listener */
+            tonConnectUI.onStatusChange(wallet => {
+                if (wallet) {
+                    walletAddress = wallet.account.address;
+                    showModal(
+                        `Wallet connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`,
+                        'Tonkeeper'
+                    );
+                } else {
+                    walletAddress = null;
+                    showModal('Wallet disconnected', 'Tonkeeper');
+                }
+                updateWalletUI();
+            });
+
+            /* ================= GAME LOGIC ================= */
+            let balance = Number(localStorage.getItem('balance') || 1000);
+            let ton = Number(localStorage.getItem('ton') || 0);
+
+            const balanceEl = document.getElementById('balance');
+            const tonEl = document.getElementById('ton');
+            const resultEl = document.getElementById('result');
+            const multEl = document.getElementById('mult');
+            const payBtn = document.getElementById('payBtn');
+            const cashBtn = document.getElementById('cashBtn');
+
+            function updateUI() {
+                balanceEl.textContent = balance;
+                tonEl.textContent = ton.toFixed(8);
+                localStorage.setItem('balance', balance);
+                localStorage.setItem('ton', ton);
+            }
+            updateUI();
+
+            /* ================= CHART ================= */
+            const ctx = document.getElementById('chart').getContext('2d');
+            let data = [], labels = [];
+
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets: [{ data, borderWidth: 2, tension: .35, borderColor: '#00ff88' }] },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { display: false } }
+                }
+            });
+
+            /* ================= ROUND ================= */
+            let roundActive = false;
+            let multiplier = 1;
+            let betAmount = 0;
+            let seconds = 0;
+            let timer = null;
+            let trend = 1;
+            let cooldownUntil = 0;
+
+            const rand = (min, max) => Math.random() * (max - min) + min;
+            const inCooldown = () => Date.now() < cooldownUntil;
+
+            function startRound() {
+                if (inCooldown()) {
+                    const left = Math.ceil((cooldownUntil - Date.now()) / 1000);
+                    showModal(`Cooldown active (${left}s)`, 'Cooldown');
+                    return;
+                }
+
+                const bet = Number(document.getElementById('bet').value);
+                if (!bet || bet < 1 || bet > 50000)
+                    return showModal('Invalid bet');
+                if (bet > balance)
+                    return showModal('Insufficient coins');
+                if (roundActive) return;
+
+                balance -= bet;
+                betAmount = bet;
+                multiplier = 1;
+                seconds = 0;
+                updateUI();
+
+                payBtn.style.display = 'none';
+                cashBtn.style.display = 'block';
+                resultEl.textContent = 'Market live…';
+
+                data.length = 0;
+                labels.length = 0;
+                chart.update();
+
+                roundActive = true;
+                trend = Math.random() < 0.5 ? 1 : -1;
+
+                timer = setInterval(() => {
+                    seconds++;
+                    if (Math.random() < 0.15) trend *= -1;
+
+                    const up = rand(0.01, 0.06) * (1 + multiplier * 0.15);
+                    const dn = rand(0.02, 0.10) * (1 + multiplier * 0.2);
+                    multiplier += trend > 0 ? up : -dn;
+
+                    if (multiplier < 0.35) multiplier = rand(0.35, 0.55);
+
+                    chart.data.datasets[0].borderColor = trend > 0 ? '#00ff88' : '#ff4d4d';
+
+                    data.push(multiplier);
+                    labels.push(seconds);
+                    chart.update();
+
+                    const pct = Math.floor((multiplier - 1) * 100);
+                    multEl.innerHTML = `x${multiplier.toFixed(2)} <small>(${pct >= 0 ? '+' : ''}${pct}%)</small>`;
+                }, 1000);
+            }
+
+            function cashOut() {
+                if (!roundActive) return;
+
+                clearInterval(timer);
+                roundActive = false;
+
+                const win = Math.floor(betAmount * multiplier);
+                const pnl = win - betAmount;
+                balance += win;
+
+                if (betAmount >= 1000 && pnl > 0)
+                    ton += rand(0.00000005, 0.00000025);
+
+                resultEl.textContent =
+                    `Cashed out x${multiplier.toFixed(2)} → ${win} (${pnl >= 0 ? '+' : ''}${pnl})`;
+
+                payBtn.style.display = 'block';
+                cashBtn.style.display = 'none';
+                updateUI();
+            }
+        </script>
 </body>
 
 </html>
