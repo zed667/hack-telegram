@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TON Crash • Dark</title>
 
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
@@ -242,7 +240,6 @@
             <div><i class="fa-solid fa-shield"></i> Fair-play mode</div>
         </div>
 
-        <!-- Settings Modal -->
         <div class="modal-backdrop" id="settingsModal">
             <div class="modal">
                 <h3>Wallet</h3>
@@ -256,179 +253,152 @@
             </div>
         </div>
 
-        <!-- TONCONNECT SDK -->
         <script src="https://unpkg.com/@tonconnect/ui@2.0.9/dist/tonconnect-ui.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
         <script>
+            /* ================= SOUND ENGINE ================= */
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            const audioCtx = new AudioCtx();
+
+            document.body.addEventListener('click', () => {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+            }, { once: true });
+
+            function playTone({ type = 'sine', freq = 440, duration = 0.1, volume = 0.2, slideTo = null }) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, audioCtx.currentTime + duration);
+                gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            }
+
+            function soundClick() { playTone({ type: 'square', freq: 600, duration: 0.05, volume: 0.15 }); }
+            function soundUp() { playTone({ type: 'sine', freq: 400, slideTo: 800, duration: 0.12, volume: 0.18 }); }
+            function soundHeart() {
+                // دو پالس کوتاه با تاخیر
+                const now = audioCtx.currentTime;
+
+                // پالس اول
+                const osc1 = audioCtx.createOscillator();
+                const gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(150, now);
+                gain1.gain.setValueAtTime(0.2, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.12);
+
+                // پالس دوم (کمی بالاتر و بعد از 0.15 ثانیه)
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(180, now + 0.15);
+                gain2.gain.setValueAtTime(0.18, now + 0.15);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.27);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now + 0.15);
+                osc2.stop(now + 0.27);
+            }
+            function soundCashout() {
+                playTone({ freq: 700, duration: 0.08, volume: 0.2 });
+                setTimeout(() => playTone({ freq: 1000, duration: 0.12, volume: 0.25 }), 80);
+            }
+            function soundError() { playTone({ type: 'triangle', freq: 200, slideTo: 100, duration: 0.2, volume: 0.2 }); }
+
             /* ================= MODAL ================= */
             const modal = document.createElement('div');
             modal.className = 'modal-backdrop';
-            modal.innerHTML = `
-            <div class="modal">
-                <h3 id="modalTitle"></h3>
-                <p id="modalText"></p>
-                <button onclick="closeModal()">Close</button>
-            </div>`;
+            modal.innerHTML = `<div class="modal"><h3 id="modalTitle"></h3><p id="modalText"></p><button onclick="closeModal()">Close</button></div>`;
             document.body.appendChild(modal);
-
             const modalTitle = document.getElementById('modalTitle');
             const modalText = document.getElementById('modalText');
-
-            function showModal(msg, title = 'Message') {
-                modalTitle.textContent = title;
-                modalText.textContent = msg;
-                modal.style.display = 'flex';
-            }
-            function closeModal() {
-                modal.style.display = 'none';
-            }
+            function showModal(msg, title = 'Message') { soundClick(); modalTitle.textContent = title; modalText.textContent = msg; modal.style.display = 'flex'; }
+            function closeModal() { modal.style.display = 'none'; }
 
             /* ================= SETTINGS ================= */
             const settingsModal = document.getElementById('settingsModal');
-            function openSettings() {
-                updateWalletUI();
-                settingsModal.style.display = 'flex';
-            }
-            function closeSettings() {
-                settingsModal.style.display = 'none';
-            }
+            function openSettings() { updateWalletUI(); settingsModal.style.display = 'flex'; }
+            function closeSettings() { settingsModal.style.display = 'none'; }
 
             /* ================= TONCONNECT ================= */
-            const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                manifestUrl: 'https://zed667.github.io/hack-telegram/tonconnect-manifest.json'
-            });
-
-
+            const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({ manifestUrl: 'https://zed667.github.io/hack-telegram/tonconnect-manifest.json' });
             let walletAddress = null;
             const walletBtn = () => document.getElementById('walletBtn');
-
             function updateWalletUI() {
                 if (tonConnectUI.connected) {
-                    walletBtn().innerHTML =
-                        '<i class="fa-solid fa-plug-circle-xmark"></i> Disconnect Wallet';
-                    walletBtn().style.background =
-                        'linear-gradient(135deg,#ff4d4d,#ff7a7a)';
+                    walletBtn().innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Disconnect Wallet';
+                    walletBtn().style.background = 'linear-gradient(135deg,#ff4d4d,#ff7a7a)';
                 } else {
-                    walletBtn().innerHTML =
-                        '<i class="fa-solid fa-wallet"></i> Connect Wallet';
-                    walletBtn().style.background =
-                        'linear-gradient(135deg,#6c7cff,#8b5cf6)';
+                    walletBtn().innerHTML = '<i class="fa-solid fa-wallet"></i> Connect Wallet';
+                    walletBtn().style.background = 'linear-gradient(135deg,#6c7cff,#8b5cf6)';
                 }
             }
-
-
-            /* 🔥 REAL CONNECT */
-            async function toggleWallet() {
-                if (!tonConnectUI.connected) {
-                    await tonConnectUI.connectWallet();
-                } else {
-                    await tonConnectUI.disconnect();
-                }
-            }
-
-
-            /* Status Listener */
+            async function toggleWallet() { if (!tonConnectUI.connected) await tonConnectUI.connectWallet(); else await tonConnectUI.disconnect(); }
             tonConnectUI.onStatusChange(wallet => {
-                if (wallet) {
-                    walletAddress = wallet.account.address;
-                    showModal(
-                        `Wallet connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`,
-                        'Tonkeeper'
-                    );
-                } else {
-                    walletAddress = null;
-                    showModal('Wallet disconnected', 'Tonkeeper');
-                }
+                if (wallet) { walletAddress = wallet.account.address; showModal(`Wallet connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`, 'Tonkeeper'); }
+                else { walletAddress = null; showModal('Wallet disconnected', 'Tonkeeper'); }
                 updateWalletUI();
             });
 
             /* ================= GAME LOGIC ================= */
             let balance = Number(localStorage.getItem('balance') || 1000);
             let ton = Number(localStorage.getItem('ton') || 0);
-
             const balanceEl = document.getElementById('balance');
             const tonEl = document.getElementById('ton');
             const resultEl = document.getElementById('result');
             const multEl = document.getElementById('mult');
             const payBtn = document.getElementById('payBtn');
             const cashBtn = document.getElementById('cashBtn');
-
-            function updateUI() {
-                balanceEl.textContent = balance;
-                tonEl.textContent = ton.toFixed(8);
-                localStorage.setItem('balance', balance);
-                localStorage.setItem('ton', ton);
-            }
+            function updateUI() { balanceEl.textContent = balance; tonEl.textContent = ton.toFixed(8); localStorage.setItem('balance', balance); localStorage.setItem('ton', ton); }
             updateUI();
 
             /* ================= CHART ================= */
             const ctx = document.getElementById('chart').getContext('2d');
-            let data = [], labels = [];
-
+            let data = [], labels = [], pointBackgroundColors = [], pointBorderColors = [];
             const chart = new Chart(ctx, {
                 type: 'line',
-                data: { labels, datasets: [{ data, borderWidth: 2, tension: .35, borderColor: '#00ff88' }] },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { x: { display: false }, y: { display: false } }
-                }
+                data: { labels, datasets: [{ data, borderWidth: 3, tension: 0.5, pointRadius: 0, segment: { borderColor: ctx => ctx.p1.parsed.y >= ctx.p0.parsed.y ? '#00ff88' : '#ff4d4d' } }] },
+                options: { responsive: true, animation: { duration: 500, easing: 'easeOutQuart' }, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
             });
 
             /* ================= ROUND ================= */
-            let roundActive = false;
-            let multiplier = 1;
-            let betAmount = 0;
-            let seconds = 0;
-            let timer = null;
-            let trend = 1;
-            let cooldownUntil = 0;
-
+            let roundActive = false, multiplier = 1, betAmount = 0, seconds = 0, timer = null, trend = 1, cooldownUntil = 0;
             const rand = (min, max) => Math.random() * (max - min) + min;
             const inCooldown = () => Date.now() < cooldownUntil;
 
             function startRound() {
-                if (inCooldown()) {
-                    const left = Math.ceil((cooldownUntil - Date.now()) / 1000);
-                    showModal(`Cooldown active (${left}s)`, 'Cooldown');
-                    return;
-                }
-
+                if (inCooldown()) { soundError(); const left = Math.ceil((cooldownUntil - Date.now()) / 1000); return showModal(`Cooldown active (${left}s)`, 'Cooldown'); }
                 const bet = Number(document.getElementById('bet').value);
-                if (!bet || bet < 1 || bet > 50000)
-                    return showModal('Invalid bet');
-                if (bet > balance)
-                    return showModal('Insufficient coins');
+                if (!bet || bet < 1 || bet > 50000) { soundError(); return showModal('Invalid bet'); }
+                if (bet > balance) { soundError(); return showModal('Insufficient coins'); }
                 if (roundActive) return;
 
-                balance -= bet;
-                betAmount = bet;
-                multiplier = 1;
-                seconds = 0;
-                updateUI();
-
-                payBtn.style.display = 'none';
-                cashBtn.style.display = 'block';
-                resultEl.textContent = 'Market live…';
-
-                data.length = 0;
-                labels.length = 0;
-                chart.update();
-
-                roundActive = true;
-                trend = Math.random() < 0.5 ? 1 : -1;
+                soundClick();
+                balance -= bet; betAmount = bet; multiplier = 1; seconds = 0; updateUI();
+                payBtn.style.display = 'none'; cashBtn.style.display = 'block'; resultEl.textContent = 'Market live…';
+                data.length = 0; labels.length = 0; pointBackgroundColors.length = 0; pointBorderColors.length = 0; chart.update();
+                roundActive = true; trend = Math.random() < 0.5 ? 1 : -1;
 
                 timer = setInterval(() => {
                     seconds++;
                     if (Math.random() < 0.15) trend *= -1;
-
                     const up = rand(0.01, 0.06) * (1 + multiplier * 0.15);
                     const dn = rand(0.02, 0.10) * (1 + multiplier * 0.2);
                     multiplier += trend > 0 ? up : -dn;
-
                     if (multiplier < 0.35) multiplier = rand(0.35, 0.55);
 
-                    chart.data.datasets[0].borderColor = trend > 0 ? '#00ff88' : '#ff4d4d';
+                    const color = trend > 0 ? '#00ff88' : '#ff4d4d';
+                    pointBackgroundColors.push(color);
+                    pointBorderColors.push(color);
 
                     data.push(multiplier);
                     labels.push(seconds);
@@ -436,29 +406,45 @@
 
                     const pct = Math.floor((multiplier - 1) * 100);
                     multEl.innerHTML = `x${multiplier.toFixed(2)} <small>(${pct >= 0 ? '+' : ''}${pct}%)</small>`;
+
+                    // play sound
+                    if (trend > 0) soundUp(); else soundHeart();
+
+                    // particles
+                    if (multiplier > 2) { confetti({ particleCount: 5, spread: 50, origin: { y: 0.6 }, colors: ['#00ff88', '#6c7cff', '#ff4d4d'] }); }
+
                 }, 1000);
             }
 
             function cashOut() {
                 if (!roundActive) return;
-
                 clearInterval(timer);
                 roundActive = false;
 
                 const win = Math.floor(betAmount * multiplier);
                 const pnl = win - betAmount;
                 balance += win;
+                if (betAmount >= 1000) {
+                    if (pnl > 0) {
+                        ton += rand(0.00000005, 0.00000025); 
+                    } else {
+                        ton -= rand(0.00000005, 0.00000025); 
+                        if (ton < 0) ton = 0; 
+                    }
+                }
 
-                if (betAmount >= 1000 && pnl > 0)
-                    ton += rand(0.00000005, 0.00000025);
 
-                resultEl.textContent =
-                    `Cashed out x${multiplier.toFixed(2)} → ${win} (${pnl >= 0 ? '+' : ''}${pnl})`;
+                resultEl.textContent = `Cashed out x${multiplier.toFixed(2)} → ${win} (${pnl >= 0 ? '+' : ''}${pnl})`;
+                soundCashout();
 
-                payBtn.style.display = 'block';
-                cashBtn.style.display = 'none';
+                payBtn.style.display = 'block'; cashBtn.style.display = 'none';
                 updateUI();
             }
+
+            // attach click sounds to buttons
+            payBtn.addEventListener('click', soundClick);
+            cashBtn.addEventListener('click', soundClick);
+
         </script>
 </body>
 
