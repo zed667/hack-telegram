@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TON Crash • Dark</title>
+    <title>TON Crash</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -200,17 +200,85 @@
         .modal button {
             margin-top: 0;
         }
+
+        #ping.good {
+            color: #00ff88;
+        }
+
+        #ping.mid {
+            color: #facc15;
+        }
+
+        #ping.bad {
+            color: #ff4d4d;
+        }
+
+        .header-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+            flex-wrap: nowrap;
+            /* 👈 مهم */
+        }
+
+        /* سمت چپ */
+        .header-line .left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            /* 👈 نذار بره خط بعد */
+            flex-shrink: 0;
+        }
+
+        /* سمت راست */
+        .header-line .right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            white-space: nowrap;
+            /* 👈 سکه‌ها همیشه یه خط */
+        }
+
+        .icon-main {
+            color: #6c7cff;
+        }
+
+        .icon-Coin {
+            color: #dba801;
+        }
+
+        .icon-TON {
+            color: #00c3ff;
+        }
     </style>
 </head>
+
+<div class="modal-backdrop" id="dailyModal">
+    <div class="modal">
+        <h3>🎁 Daily Reward</h3>
+        <p id="dailyText"></p>
+        <button onclick="claimDailyReward()">Claim</button>
+    </div>
+</div>
 
 <body>
     <div class="app">
 
         <div class="card header">
-            <div class="brand"><i class="fa-solid fa-chart-line"></i> TON Crash</div>
-            <div class="stats">
-                <div class="stat"><i class="fa-solid fa-coins"></i> Coins: <b id="balance">1000</b></div>
-                <div class="stat"><i class="fa-brands fa-ethereum"></i> TON: <b id="ton">0.00000000</b></div>
+            <div class="header-line">
+                <div class="left">
+                    <i class="fa-solid fa-chart-line icon-main"></i>
+                    <span class="title">TON Crash</span>
+                    <span id="ping" class="ping">● -- ms</span>
+                </div>
+
+                <div class="right">
+                    <span><i class="fa-solid fa-coins icon-Coin"></i> Cpin: <b id="balance">0</b></span>
+                    <span><i class="fa-brands fa-ethereum icon-TON"></i> TON: <b id="ton">0.00000000</b></span>
+                </div>
             </div>
         </div>
 
@@ -237,7 +305,7 @@
             <div class="feed" style="cursor:pointer" onclick="openSettings()">
                 <i class="fa-solid fa-gear"></i> Settings
             </div>
-            <div><i class="fa-solid fa-shield"></i> Fair-play mode</div>
+            <div><i class="fa-solid fa-shield"></i> ZED EXE</div>
         </div>
 
         <div class="modal-backdrop" id="settingsModal">
@@ -390,11 +458,12 @@
 
                 timer = setInterval(() => {
                     seconds++;
-                    if (Math.random() < 0.15) trend *= -1;
-                    const up = rand(0.01, 0.06) * (1 + multiplier * 0.15);
-                    const dn = rand(0.02, 0.10) * (1 + multiplier * 0.2);
-                    multiplier += trend > 0 ? up : -dn;
-                    if (multiplier < 0.35) multiplier = rand(0.35, 0.55);
+                    trend = Math.random() < 0.5 ? 1 : -1;
+                    const step = rand(0.015, 0.045);
+                    multiplier += trend * step;
+                    if (multiplier < 0.4) {
+                        multiplier = 0.4;
+                    }
 
                     const color = trend > 0 ? '#00ff88' : '#ff4d4d';
                     pointBackgroundColors.push(color);
@@ -426,10 +495,10 @@
                 balance += win;
                 if (betAmount >= 1000) {
                     if (pnl > 0) {
-                        ton += rand(0.00000005, 0.00000025); 
+                        ton += rand(0.00000005, 0.00000025);
                     } else {
-                        ton -= rand(0.00000005, 0.00000025); 
-                        if (ton < 0) ton = 0; 
+                        ton -= rand(0.00000005, 0.00000025);
+                        if (ton < 0) ton = 0;
                     }
                 }
 
@@ -444,6 +513,121 @@
             // attach click sounds to buttons
             payBtn.addEventListener('click', soundClick);
             cashBtn.addEventListener('click', soundClick);
+
+
+            /* ================= DAILY MODAL REWARD ================= */
+
+            const DAILY_TIME = 24 * 60 * 60 * 1000;
+            const dailyModal = document.getElementById('dailyModal');
+            const dailyText = document.getElementById('dailyText');
+
+            let dailyReward = null;
+
+            function canShowDaily() {
+                const last = Number(localStorage.getItem('lastDailyReward') || 0);
+                return Date.now() - last >= DAILY_TIME;
+            }
+
+            function generateDailyReward() {
+                if (dailyReward) return dailyReward;
+
+                const isCoin = Math.random() < 0.5;
+
+                if (isCoin) {
+                    dailyReward = {
+                        type: 'coin',
+                        amount: Math.floor(Math.random() * (15000 - 1000 + 1)) + 1000
+                    };
+                    dailyText.innerHTML = `🪙 <b>${dailyReward.amount}</b> Coins`;
+                } else {
+                    dailyReward = {
+                        type: 'ton',
+                        amount: Number((Math.random() * (0.00000050 - 0.00000005) + 0.00000005).toFixed(8))
+                    };
+                    dailyText.innerHTML = `💎 <b>${dailyReward.amount}</b> TON`;
+                }
+            }
+
+            function showDailyModal() {
+                if (!canShowDaily()) return;
+                generateDailyReward();
+                dailyModal.style.display = 'flex';
+            }
+
+            function claimDailyReward() {
+                soundClick();
+
+                if (!dailyReward) return;
+
+                if (dailyReward.type === 'coin') {
+                    balance += dailyReward.amount;
+                } else {
+                    ton += dailyReward.amount;
+                }
+
+                updateUI();
+                localStorage.setItem('lastDailyReward', Date.now());
+
+                dailyReward = null;
+                dailyModal.style.display = 'none';
+            }
+
+            // auto show on load
+            window.addEventListener('load', () => {
+                setTimeout(showDailyModal, 800);
+            });
+
+            const pingEl = document.getElementById('ping');
+            let networkDown = false;
+
+            async function checkPing() {
+                const start = performance.now();
+                try {
+                    await fetch(window.location.origin + '/', {
+                        method: 'HEAD',
+                        cache: 'no-store',
+                        mode: 'no-cors'
+                    });
+
+                    const ping = Math.round(performance.now() - start);
+                    updatePingUI(ping);
+                } catch {
+                    updatePingUI(null);
+                }
+            }
+
+            function updatePingUI(ping) {
+                if (ping === null) {
+                    pingEl.textContent = '● offline';
+                    pingEl.className = 'ping bad';
+                    return;
+                }
+
+                pingEl.textContent = `● ${ping} ms`;
+                pingEl.className = 'ping';
+
+                if (ping < 120) pingEl.classList.add('good');
+                else if (ping < 200) pingEl.classList.add('mid');
+                else pingEl.classList.add('bad');
+            }
+
+            function triggerNetworkError() {
+                if (networkDown) return;
+                networkDown = true;
+
+                clearInterval(timer);
+                roundActive = false;
+                payBtn.style.display = 'block';
+                cashBtn.style.display = 'none';
+
+                soundError();
+                showModal('Network Error\nHigh latency detected', 'Connection Lost');
+
+                setTimeout(() => networkDown = false, 5000);
+            }
+
+            setInterval(checkPing, 3000);
+            checkPing();
 
         </script>
 </body>
